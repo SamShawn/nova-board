@@ -43,19 +43,20 @@ async function main() {
           { id: 'col-done', name: 'Done', order: 3 },
         ],
       },
-      labels: {
-        create: [
-          { id: 'label-bug', name: 'Bug', color: '#ef4444' },
-          { id: 'label-feature', name: 'Feature', color: '#6366f1' },
-          { id: 'label-enhancement', name: 'Enhancement', color: '#10b981' },
-          { id: 'label-docs', name: 'Documentation', color: '#f59e0b' },
-        ],
-      },
     },
     include: { columns: true },
   })
 
+  // Create labels
+  const labels = await Promise.all([
+    prisma.label.upsert({ where: { id: 'label-bug' }, update: {}, create: { id: 'label-bug', name: 'Bug', color: '#ef4444' } }),
+    prisma.label.upsert({ where: { id: 'label-feature' }, update: {}, create: { id: 'label-feature', name: 'Feature', color: '#6366f1' } }),
+    prisma.label.upsert({ where: { id: 'label-enhancement' }, update: {}, create: { id: 'label-enhancement', name: 'Enhancement', color: '#10b981' } }),
+    prisma.label.upsert({ where: { id: 'label-docs' }, update: {}, create: { id: 'label-docs', name: 'Documentation', color: '#f59e0b' } }),
+  ])
+
   console.log('✅ Created board:', board.name)
+  console.log('✅ Created labels:', labels.length)
 
   // Create sample issues
   const issues = [
@@ -68,6 +69,14 @@ async function main() {
   ]
 
   for (const issue of issues) {
+    const labelId = issue.title.toLowerCase().includes('fix') || issue.title.toLowerCase().includes('bug')
+      ? 'label-bug'
+      : issue.title.toLowerCase().includes('auth') || issue.title.toLowerCase().includes('design') || issue.title.toLowerCase().includes('build') || issue.title.toLowerCase().includes('implement') || issue.title.toLowerCase().includes('add')
+        ? 'label-feature'
+        : issue.title.toLowerCase().includes('docs') || issue.title.toLowerCase().includes('document')
+          ? 'label-docs'
+          : 'label-enhancement'
+
     await prisma.issue.upsert({
       where: { id: `issue-${issue.title.toLowerCase().replace(/\s+/g, '-')}` },
       update: {},
@@ -75,6 +84,7 @@ async function main() {
         id: `issue-${issue.title.toLowerCase().replace(/\s+/g, '-')}`,
         ...issue,
         assigneeId: user.id,
+        labels: { connect: { id: labelId } },
       },
     })
   }
