@@ -33,6 +33,7 @@ model Board {
 
   columns Column[]
   members BoardMember[]
+  labels  Label[]
 }
 
 model BoardMember {
@@ -93,11 +94,15 @@ enum Priority {
 }
 
 model Label {
-  id    String @id @default(cuid())
-  name  String
-  color String
+  id      String @id @default(cuid())
+  name    String
+  color   String
+  boardId String
 
+  board  Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   issues Issue[]
+
+  @@unique([boardId, name])
 }
 
 model Subtask {

@@ -31,7 +31,13 @@ export default function RegisterPage() {
       login(user, token)
       navigate('/dashboard')
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create account'
+      let errorMessage = 'Failed to create account'
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string } } }
+        errorMessage = axiosErr.response?.data?.message || errorMessage
+      } else if (err instanceof Error) {
+        errorMessage = err.message
+      }
       setError(errorMessage)
     } finally {
       setLoading(false)

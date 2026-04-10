@@ -24,7 +24,13 @@ export default function LoginPage() {
       login(user, token)
       navigate('/dashboard')
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Invalid email or password'
+      let errorMessage = 'Invalid email or password'
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string } } }
+        errorMessage = axiosErr.response?.data?.message || errorMessage
+      } else if (err instanceof Error) {
+        errorMessage = err.message
+      }
       setError(errorMessage)
     } finally {
       setLoading(false)

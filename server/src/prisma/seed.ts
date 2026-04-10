@@ -49,10 +49,10 @@ async function main() {
 
   // Create labels
   const labels = await Promise.all([
-    prisma.label.upsert({ where: { id: 'label-bug' }, update: {}, create: { id: 'label-bug', name: 'Bug', color: '#ef4444' } }),
-    prisma.label.upsert({ where: { id: 'label-feature' }, update: {}, create: { id: 'label-feature', name: 'Feature', color: '#6366f1' } }),
-    prisma.label.upsert({ where: { id: 'label-enhancement' }, update: {}, create: { id: 'label-enhancement', name: 'Enhancement', color: '#10b981' } }),
-    prisma.label.upsert({ where: { id: 'label-docs' }, update: {}, create: { id: 'label-docs', name: 'Documentation', color: '#f59e0b' } }),
+    prisma.label.upsert({ where: { id: 'label-bug' }, update: {}, create: { id: 'label-bug', name: 'Bug', color: '#ef4444', boardId: board.id } }),
+    prisma.label.upsert({ where: { id: 'label-feature' }, update: {}, create: { id: 'label-feature', name: 'Feature', color: '#6366f1', boardId: board.id } }),
+    prisma.label.upsert({ where: { id: 'label-enhancement' }, update: {}, create: { id: 'label-enhancement', name: 'Enhancement', color: '#10b981', boardId: board.id } }),
+    prisma.label.upsert({ where: { id: 'label-docs' }, update: {}, create: { id: 'label-docs', name: 'Documentation', color: '#f59e0b', boardId: board.id } }),
   ])
 
   console.log('✅ Created board:', board.name)

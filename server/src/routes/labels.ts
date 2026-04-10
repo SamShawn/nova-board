@@ -26,7 +26,7 @@ labelsRouter.get('/boards/:boardId/labels', authenticate, async (req, res, next)
     }
 
     const labels = await prisma.label.findMany({
-      where: { boardId: req.params.boardId },
+      where: { boardId: req.params.boardId }
     })
 
     res.json(labels)

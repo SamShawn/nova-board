@@ -29,7 +29,10 @@ export async function authenticate(
     }
 
     const token = authHeader.slice(7)
-    const secret = process.env.JWT_SECRET || 'default-secret'
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      throw new AppError(500, 'JWT_SECRET environment variable is not configured')
+    }
 
     const payload = jwt.verify(token, secret) as { userId: string }
     const user = await prisma.user.findUnique({

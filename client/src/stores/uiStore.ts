@@ -1,6 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+const applyTheme = (theme: 'light' | 'dark' | 'system') => {
+  const root = document.documentElement
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light')
+  } else {
+    root.setAttribute('data-theme', theme)
+  }
+}
+
 interface UIState {
   theme: 'light' | 'dark' | 'system'
   sidebarCollapsed: boolean
@@ -21,7 +31,10 @@ export const useUIStore = create<UIState>()(
       activeModal: null,
       modalData: null,
 
-      setTheme: (theme) => set({ theme }),
+      setTheme: (theme) => {
+        applyTheme(theme)
+        set({ theme })
+      },
       toggleSidebar: () =>
         set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       openModal: (modalId, data = null) =>
@@ -34,6 +47,11 @@ export const useUIStore = create<UIState>()(
         theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.theme) {
+          applyTheme(state.theme)
+        }
+      },
     }
   )
 )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { boardsApi } from '@/api'
@@ -21,10 +21,13 @@ export default function DashboardPage() {
   const { data: apiBoards, isLoading } = useQuery({
     queryKey: ['boards'],
     queryFn: boardsApi.list,
-    onSuccess: (data) => {
-      setBoards(data)
-    },
   })
+
+  useEffect(() => {
+    if (apiBoards) {
+      setBoards(apiBoards)
+    }
+  }, [apiBoards, setBoards])
 
   const createMutation = useMutation({
     mutationFn: ({ name, description }: { name: string; description?: string }) =>

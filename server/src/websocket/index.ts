@@ -24,7 +24,11 @@ export function setupWebSocket(server: Server) {
     }
 
     try {
-      const secret = process.env.JWT_SECRET || 'default-secret'
+      const secret = process.env.JWT_SECRET
+      if (!secret) {
+        ws.close(4003, 'Server misconfiguration: JWT_SECRET not set')
+        return
+      }
       const payload = jwt.verify(token, secret) as { userId: string }
 
       clients.set(ws, { ws, userId: payload.userId })
