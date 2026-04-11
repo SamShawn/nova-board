@@ -12,9 +12,10 @@ interface ModalProps {
   title?: string
   children: React.ReactNode
   size?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 
-export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
+export function Modal({ open, onClose, title, children, size = 'md', className }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       className={styles.overlay}
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
-      <div className={cn(styles.modal, styles[size])} role="dialog" aria-modal="true">
+      <div className={cn(styles.modal, styles[size], className)} role="dialog" aria-modal="true">
         {title && (
           <div className={styles.header}>
             <h2 className={styles.title}>{title}</h2>

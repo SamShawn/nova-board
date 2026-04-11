@@ -1,0 +1,154 @@
+.modal {
+  max-width: 640px;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.issueNum {
+  font-family: monospace;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.closeBtn:hover {
+  background: var(--bg-tertiary);
+}
+
+.titleInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  background: transparent;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  padding: 0;
+}
+
+.titleInput::placeholder {
+  color: var(--text-muted);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.metaRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.metaLabel {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 500;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.select {
+  min-width: 120px;
+}
+
+.assigneeRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.unassigned {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: var(--text-sm);
+}
+
+.labelsRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.section {
+  margin-top: var(--space-6);
+}
+
+.sectionTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.descInput {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.descInput:focus {
+  border-color: var(--accent);
+}
+
+.descInput::placeholder {
+  color: var(--text-muted);
+}
+
+.emptyText {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.subIssueCount,
+.commentCount {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

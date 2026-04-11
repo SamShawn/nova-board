@@ -58,7 +58,7 @@ export function KanbanColumn({ column, projectKey }: KanbanColumnProps) {
       <SortableContext items={issueIds} strategy={verticalListSortingStrategy}>
         <div className={styles.issues}>
           {column.issues.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} />
+            <IssueCard key={issue.id} issue={issue} projectKey={projectKey} />
           ))}
         </div>
       </SortableContext>
