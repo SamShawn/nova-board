@@ -45,7 +45,28 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ ke
   const issueNumber = parseInt(number)
   if (isNaN(issueNumber)) return NextResponse.json({ error: 'Invalid issue number' }, { status: 400 })
 
-  const { title, description, priority, assigneeId } = await req.json()
+  const { title, description, priority, assigneeId, addLabel, removeLabel } = await req.json()
+
+  // Get existing issue first
+  const existingIssue = await prisma.issue.findFirst({
+    where: { projectId: project.id, issueNumber },
+  })
+  if (!existingIssue) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  // Handle label operations
+  if (addLabel) {
+    const { labelId, labelType } = addLabel
+    await prisma.issueLabel.create({
+      data: { issueId: existingIssue.id, labelId, labelType },
+    })
+  }
+
+  if (removeLabel) {
+    const { labelId, labelType } = removeLabel
+    await prisma.issueLabel.deleteMany({
+      where: { issueId: existingIssue.id, labelId, labelType },
+    })
+  }
 
   const issue = await prisma.issue.updateMany({
     where: { projectId: project.id, issueNumber },
