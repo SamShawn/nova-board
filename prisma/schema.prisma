@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  memberships   WorkspaceMember[]
+  assignedIssues Issue[]  @relation("Assignee")
+  comments      Comment[]
+  reportedIssues Issue[]  @relation("Reporter")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members    WorkspaceMember[]
+  projects   Project[]
+  labels     WorkspaceLabel[]
+}
+
+model WorkspaceMember {
+  id          String   @id @default(cuid())
+  role        Role     @default(MEMBER)
+  userId      String
+  workspaceId String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  key         String
+  description String?
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  columns  Column[]
+  labels   ProjectLabel[]
+  issues   Issue[]
+
+  @@unique([workspaceId, key])
+}
+
+model Column {
+  id        String   @id @default(cuid())
+  name      String
+  order     Int
+  color     String?
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues    Issue[]
+
+  @@index([projectId, order])
+}
+
+model Issue {
+  id          String    @id @default(cuid())
+  issueNumber Int
+  title       String
+  description String?
+  order       Int
+  priority    Priority  @default(MEDIUM)
+  columnId    String
+  projectId   String
+  parentId    String?
+  reporterId  String
+  assigneeId  String?
+
+  column     Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent     Issue?    @relation("SubIssues", fields: [parentId], references: [id], onDelete: Cascade)
+  subIssues  Issue[]   @relation("SubIssues")
+  reporter   User      @relation("Reporter", fields: [reporterId], references: [id])
+  assignee   User?      @relation("Assignee", fields: [assigneeId], references: [id])
+  comments   Comment[]
+  labels     IssueLabel[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, issueNumber])
+  @@index([columnId, order])
+  @@index([parentId])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model WorkspaceLabel {
+  id          String   @id @default(cuid())
+  name        String
+  color       String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+}
+
+model ProjectLabel {
+  id        String  @id @default(cuid())
+  name      String
+  color     String
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+}
+
+model IssueLabel {
+  id         String  @id @default(cuid())
+  issueId    String
+  labelType  String
+  labelId    String
+  issue      Issue   @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@unique([issueId, labelType, labelId])
+  @@index([issueId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  issueId   String
+  userId    String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
