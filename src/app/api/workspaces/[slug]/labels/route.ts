@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   const { slug } = await params
 
   const member = await prisma.workspaceMember.findFirst({
-    where: { workspace: { slug }, userId: session.user.id, role: { in: ['ADMIN', 'MEMBER'] } },
+    where: { workspace: { slug }, userId: session.user.id, role: 'ADMIN' },
   })
   if (!member) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
