@@ -13,6 +13,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (comment.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { content } = await req.json()
+  if (!content || !content.trim()) return NextResponse.json({ error: 'Content required' }, { status: 400 })
+
   const updated = await prisma.comment.update({
     where: { id },
     data: { content },
