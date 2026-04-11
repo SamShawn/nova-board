@@ -58,47 +58,62 @@ async function main() {
 
   const [todoCol, inProgressCol] = project.columns
 
-  const existingIssue = await prisma.issue.findFirst({
-    where: { projectId: project.id, title: 'Set up authentication with NextAuth' },
-  })
+  // Wrap in transaction to ensure atomicity
+  await prisma.$transaction(async (tx) => {
+    // Get max issue number for this project
+    const maxIssue = await tx.issue.findFirst({
+      where: { projectId: project.id },
+      orderBy: { issueNumber: 'desc' },
+    })
+    let nextIssueNumber = (maxIssue?.issueNumber ?? 0) + 1
 
-  if (!existingIssue) {
-    const count = await prisma.issue.count({ where: { projectId: project.id } })
-    await prisma.issue.create({
-      data: {
-        title: 'Set up authentication with NextAuth',
-        description: 'Implement login, register, OAuth providers',
-        priority: 'HIGH',
-        columnId: inProgressCol.id,
+    const [authIssue, boardIssue] = await tx.issue.findMany({
+      where: {
         projectId: project.id,
-        reporterId: user.id,
-        order: count,
-        issueNumber: count + 1,
+        title: { in: ['Set up authentication with NextAuth', 'Design kanban board layout'] },
       },
     })
-  }
 
-  const existingIssue2 = await prisma.issue.findFirst({
-    where: { projectId: project.id, title: 'Design kanban board layout' },
+    if (!authIssue) {
+      await tx.issue.create({
+        data: {
+          title: 'Set up authentication with NextAuth',
+          description: 'Implement login, register, OAuth providers',
+          priority: 'HIGH',
+          columnId: inProgressCol.id,
+          projectId: project.id,
+          reporterId: user.id,
+          order: 0,
+          issueNumber: nextIssueNumber++,
+        },
+      })
+    }
+
+    if (!boardIssue) {
+      await tx.issue.create({
+        data: {
+          title: 'Design kanban board layout',
+          description: 'Create wireframes for board view',
+          priority: 'MEDIUM',
+          columnId: todoCol.id,
+          projectId: project.id,
+          reporterId: user.id,
+          order: 1,
+          issueNumber: nextIssueNumber++,
+        },
+      })
+    }
   })
-
-  if (!existingIssue2) {
-    const count = await prisma.issue.count({ where: { projectId: project.id } })
-    await prisma.issue.create({
-      data: {
-        title: 'Design kanban board layout',
-        description: 'Create wireframes for board view',
-        priority: 'MEDIUM',
-        columnId: todoCol.id,
-        projectId: project.id,
-        reporterId: user.id,
-        order: count,
-        issueNumber: count + 1,
-      },
-    })
-  }
 
   console.log('Seed complete: demo@novaboard.dev / password123')
 }
 
-main().catch(console.error)
+main()
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+    process.exit(0)
+  })
