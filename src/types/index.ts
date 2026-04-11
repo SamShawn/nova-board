@@ -40,6 +40,7 @@ export interface Column {
   order: number
   color: string | null
   projectId: string
+  issues?: Issue[]
 }
 
 export interface Issue {

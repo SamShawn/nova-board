@@ -5,3 +5,8 @@
   overflow-x: auto;
   min-height: calc(100vh - 120px);
 }
+
+.dragOverlay {
+  opacity: 0.9;
+  cursor: grabbing;
+}
