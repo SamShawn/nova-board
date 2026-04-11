@@ -187,3 +187,94 @@
   font-size: var(--text-sm);
   padding: var(--space-1) 0;
 }
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.commentItem {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.commentContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.commentAuthor {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.commentTime {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.deleteCommentBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  transition: color var(--transition-fast);
+}
+
+.deleteCommentBtn:hover {
+  color: var(--error);
+}
+
+.commentText {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.addCommentForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.commentInput {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  font-family: inherit;
+}
+
+.commentInput:focus {
+  border-color: var(--accent);
+}
+
+.commentInput::placeholder {
+  color: var(--text-muted);
+}

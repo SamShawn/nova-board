@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, MessageSquare, GitPullRequest, Plus, Check } from 'lucide-react'
+import { X, MessageSquare, GitPullRequest, Plus, Check, Trash2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { useSession } from 'next-auth/react'
 import { Modal, Button, Badge, Avatar, Select, Dropdown, DropdownItem } from '@/components/ui'
 import { useBoardStore } from '@/features/boards/stores/boardStore'
 import { useIssues } from '@/features/boards/hooks/useIssues'
 import { useIssueLabels } from '@/features/boards/hooks/useIssueLabels'
 import { useIssueAssignee } from '@/features/boards/hooks/useIssueAssignee'
+import { useComments } from '@/features/boards/hooks/useComments'
 import type { WorkspaceLabel, ProjectLabel, WorkspaceMember } from '@/types'
 import styles from './IssueModal.module.css'
 
@@ -21,10 +23,13 @@ export function IssueModal({ projectKey, workspaceSlug = 'default' }: IssueModal
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'>('MEDIUM')
+  const [newComment, setNewComment] = useState('')
 
+  const { data: session } = useSession()
   const { updateIssue } = useIssues(projectKey)
   const { toggleLabel } = useIssueLabels(projectKey, activeIssue?.issueNumber ?? 0)
   const { updateAssignee } = useIssueAssignee(projectKey, activeIssue?.issueNumber ?? 0)
+  const { comments, isLoading: commentsLoading, addComment, deleteComment } = useComments(projectKey, activeIssue?.issueNumber ?? 0)
 
   // Fetch workspace labels
   const { data: workspaceLabels = [] } = useQuery<WorkspaceLabel[]>({
@@ -267,11 +272,67 @@ export function IssueModal({ projectKey, workspaceSlug = 'default' }: IssueModal
             <MessageSquare size={14} /> Comments
           </h3>
         </div>
-        {(activeIssue as any)._count?.comments > 0 ? (
-          <p className={styles.commentCount}>{(activeIssue as any)._count.comments} comments</p>
+
+        {commentsLoading ? (
+          <p className={styles.emptyText}>Loading comments...</p>
+        ) : comments.length > 0 ? (
+          <div className={styles.commentsList}>
+            {comments.map((comment) => (
+              <div key={comment.id} className={styles.commentItem}>
+                <Avatar name={comment.user.name ?? 'User'} size={28} />
+                <div className={styles.commentContent}>
+                  <div className={styles.commentHeader}>
+                    <span className={styles.commentAuthor}>{comment.user.name ?? 'Unknown'}</span>
+                    <span className={styles.commentTime}>
+                      {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    {session?.user?.id === comment.user.id && (
+                      <button
+                        className={styles.deleteCommentBtn}
+                        onClick={() => deleteComment(comment.id)}
+                        title="Delete comment"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <p className={styles.commentText}>{comment.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <p className={styles.emptyText}>No comments yet</p>
         )}
+
+        <div className={styles.addCommentForm}>
+          <textarea
+            className={styles.commentInput}
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            rows={3}
+          />
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={async () => {
+              if (newComment.trim()) {
+                await addComment(newComment.trim())
+                setNewComment('')
+              }
+            }}
+            disabled={!newComment.trim()}
+          >
+            Add Comment
+          </Button>
+        </div>
       </div>
     </Modal>
   )
