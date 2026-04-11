@@ -86,9 +86,9 @@ export function IssueModal({ projectKey, workspaceSlug = 'default' }: IssueModal
     }
   }
 
-  const handleToggleLabel = async (labelId: string, labelType: string) => {
+  const handleToggleLabel = async (labelId: string, labelType: string, isApplied: boolean) => {
     try {
-      await toggleLabel({ labelId, labelType })
+      await toggleLabel({ labelId, labelType, isApplied })
     } catch (e) {
       // Handle error silently
     }
@@ -201,7 +201,7 @@ export function IssueModal({ projectKey, workspaceSlug = 'default' }: IssueModal
             {workspaceLabels.map((label) => (
               <DropdownItem
                 key={`ws-${label.id}`}
-                onClick={() => handleToggleLabel(label.id, 'WORKSPACE')}
+                onClick={() => handleToggleLabel(label.id, 'WORKSPACE', currentLabelIds.has(label.id))}
               >
                 <div className={styles.labelItem}>
                   <span
@@ -218,7 +218,7 @@ export function IssueModal({ projectKey, workspaceSlug = 'default' }: IssueModal
             {projectLabels.map((label) => (
               <DropdownItem
                 key={`proj-${label.id}`}
-                onClick={() => handleToggleLabel(label.id, 'PROJECT')}
+                onClick={() => handleToggleLabel(label.id, 'PROJECT', currentLabelIds.has(label.id))}
               >
                 <div className={styles.labelItem}>
                   <span
