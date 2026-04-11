@@ -40,6 +40,7 @@ coverage/
 .pnpm-store/
 
 .claude
+.next
 .remember
 .superpowers
 .worktrees
