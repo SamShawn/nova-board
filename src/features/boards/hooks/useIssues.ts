@@ -48,13 +48,13 @@ export function useIssues(projectKey: string) {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: async (number: number) => {
+    mutationFn: async ({ id, number }: { id: string; number: number }) => {
       const res = await fetch(`/api/projects/${projectKey}/issues/${number}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Failed to delete issue')
-      return res.json()
+      return { id }
     },
-    onSuccess: (_, number) => {
-      removeIssue(`proj-${number}`)
+    onSuccess: ({ id }) => {
+      removeIssue(id)
       queryClient.invalidateQueries({ queryKey: ['project', projectKey] })
     },
   })

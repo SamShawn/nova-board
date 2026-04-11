@@ -14,11 +14,13 @@ export function IssueModal({ projectKey }: IssueModalProps) {
   const { activeIssue, setActiveIssue } = useBoardStore()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [priority, setPriority] = useState(activeIssue.priority)
 
   useEffect(() => {
     if (activeIssue) {
       setTitle(activeIssue.title)
-      setDescription(activeIssue.description || '')
+      setDescription((activeIssue as any).description || '')
+      setPriority(activeIssue.priority)
     }
   }, [activeIssue])
 
@@ -51,9 +53,9 @@ export function IssueModal({ projectKey }: IssueModalProps) {
         <div className={styles.metaRow}>
           <label className={styles.metaLabel}>Priority</label>
           <Select
-            value={activeIssue.priority}
+            value={priority}
             options={priorityOptions}
-            onChange={() => {}}
+            onChange={(val) => setPriority(val as string)}
             className={styles.select}
           />
         </div>
