@@ -38,3 +38,8 @@ coverage/
 
 # pnpm
 .pnpm-store/
+
+.claude
+.remember
+.superpowers
+.worktrees
