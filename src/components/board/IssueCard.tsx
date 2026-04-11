@@ -2,6 +2,17 @@
 
 import styles from './IssueCard.module.css'
 
+// Validate avatar URL is safe (http/https only)
+function isValidAvatarUrl(url: string | null): boolean {
+  if (!url) return false
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 interface IssueCardProps {
   issue: {
     id: string
@@ -14,16 +25,15 @@ interface IssueCardProps {
       projectLabel: { id: string; name: string; color: string } | null
     }>
   }
-  projectKey: string
 }
 
 export function IssueCard({ issue }: IssueCardProps) {
   return (
     <div className={styles.card}>
       <div className={styles.labels}>
-        {issue.labels.slice(0, 3).map((label, i) => (
+        {issue.labels.slice(0, 3).map((label) => (
           <span
-            key={i}
+            key={label.workspaceLabel?.id || label.projectLabel?.id}
             className={styles.label}
             style={{ backgroundColor: label.workspaceLabel?.color || label.projectLabel?.color || '#6366f1' }}
           >
@@ -36,10 +46,10 @@ export function IssueCard({ issue }: IssueCardProps) {
         <span className={styles.issueNum}>#{issue.issueNumber}</span>
         {issue.assignee && (
           <span className={styles.assignee}>
-            {issue.assignee.avatarUrl ? (
+            {isValidAvatarUrl(issue.assignee.avatarUrl) ? (
               <img src={issue.assignee.avatarUrl} alt={issue.assignee.name || ''} />
             ) : (
-              <span>{(issue.assignee.name || '?')[0].toUpperCase()}</span>
+              <span>{(issue.assignee.name?.charAt(0) || '?').toUpperCase()}</span>
             )}
           </span>
         )}

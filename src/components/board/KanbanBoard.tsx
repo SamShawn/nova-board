@@ -1,6 +1,5 @@
 'use client'
 
-import { useMemo } from 'react'
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { KanbanColumn } from './KanbanColumn'
 import type { Project } from '@/types'
